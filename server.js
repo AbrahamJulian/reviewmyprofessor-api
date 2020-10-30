@@ -35,6 +35,32 @@ const db = {
 app.get("/home", (req, res) => {
   res.send(db.professors);
 });
+
+app.post("/addprofessor", (req, res) => {
+  const { id, name, university, comments, ratings } = req.body;
+
+  db.professors.push({
+    id: id,
+    name: name,
+    university: university,
+    comments: comments,
+    ratings: ratings,
+  });
+  res.json(db.professors[db.professors.length - 1]);
+  db.professors.map((rev) => console.log(rev));
+});
+
+app.put("/updatereview", (req, res) => {
+  const { id, name, university, comments, ratings } = req.body;
+
+  db.professors.map(prof, (req, res) => {
+    if (prof.id == id) {
+      prof.comments.push(comments);
+      prof.ratings.push(ratings);
+    }
+  });
+});
+
 app.listen(3000, () => {
   console.log("app is running on port 3000");
 });
