@@ -7,7 +7,7 @@ app.use(express.json());
 app.use(cors());
 
 const db = {
-  professors: [
+  review: [
     {
       id: 1,
       name: "Kyle Dewey",
@@ -38,7 +38,7 @@ const db = {
       isAdmin: true,
     },
   ],
-  pending: [
+  reviewPending: [
     {
       id: "test",
       name: "jasdksjlkdsa",
@@ -65,32 +65,54 @@ app.get("/signin", (req, res) => {
   });
 });
 
+app.get("/", (req, res) => {
+  const data = {
+    review: db.review,
+    pending: db.reviewPending,
+  };
+  res.send(data);
+});
+
 app.get("/home", (req, res) => {
-  res.send(db.professors);
+  res.send(db.review);
 });
 
 app.get("/pending", (req, res) => {
-  res.send(db.pending);
+  res.send(db.reviewPending);
 });
 
-app.post("/addprofessor", (req, res) => {
+app.post("/addProfessor/:isAdmin", (req, res) => {
   const { id, name, university, comments, ratings } = req.body;
-
-  db.professors.push({
-    id: id,
-    name: name,
-    university: university,
-    comments: comments,
-    ratings: ratings,
-  });
-  res.json(db.professors[db.professors.length - 1]);
-  db.professors.map((rev) => console.log(rev));
+  const { isAdmin } = req.params;
+  if (isAdmin == "true") {
+    db.review.push({
+      id: id,
+      name: name,
+      university: university,
+      comments: comments,
+      ratings: ratings,
+    });
+    res.json(db.review[db.review.length - 1]);
+    db.review.map((rev) => console.log(rev));
+    console.log("approved review");
+  } else {
+    db.reviewPending.push({
+      id: id,
+      name: name,
+      university: university,
+      comments: comments,
+      ratings: ratings,
+    });
+    res.json(db.reviewPending[db.reviewPending.length - 1]);
+    db.reviewPending.map((rev) => console.log(rev));
+    console.log("pending review");
+  }
 });
 
-app.put("/updatereview", (req, res) => {
+app.put("/updateReview", (req, res) => {
   const { id, comments, ratings } = req.body;
 
-  db.professors.map((prof) => {
+  db.review.map((prof) => {
     if (prof.id == id) {
       prof.comments.push(comments);
       prof.ratings.push(ratings);
@@ -98,13 +120,30 @@ app.put("/updatereview", (req, res) => {
   });
 });
 
+app.get("/deleteReview/:id", (req, res) => {
+  const { id } = req.params;
+  console.log(id);
+  let deleted = false;
+  db.review.map(function (user, index) {
+    if (user.id == id) {
+      db.review.splice(index, 1);
+      deleted = true;
+    }
+  });
+  if (!deleted) {
+    console.log("not found");
+  } else {
+    console.log("success");
+  }
+});
+
 app.get("/deletePending/:id", (req, res) => {
   const { id } = req.params;
   console.log(id);
   let deleted = false;
-  db.pending.map(function (user, index) {
+  db.reviewPending.map(function (user, index) {
     if (user.id == id) {
-      db.pending.splice(index, 1);
+      db.reviewPending.splice(index, 1);
       deleted = true;
     }
   });
